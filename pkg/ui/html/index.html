@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -56,28 +59,35 @@
             width: 8px;
             height: 8px;
         }
+
         .custom-scrollbar::-webkit-scrollbar-track {
             background: transparent;
         }
+
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #94a3b8;
             border-radius: 4px;
             border: 2px solid transparent;
             background-clip: content-box;
         }
+
         .dark .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #52525b;
         }
+
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #475569;
         }
+
         .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #71717a;
         }
+
         .custom-scrollbar {
             scrollbar-width: thin;
             scrollbar-color: #94a3b8 transparent;
         }
+
         .dark .custom-scrollbar {
             scrollbar-color: #52525b transparent;
         }
@@ -91,19 +101,36 @@
         .prose {
             max-width: none;
         }
+
         .prose p {
             margin-bottom: 1em;
             line-height: 1.7;
         }
-        .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+
+        .prose h1,
+        .prose h2,
+        .prose h3,
+        .prose h4,
+        .prose h5,
+        .prose h6 {
             margin-top: 1.5em;
             margin-bottom: 0.5em;
             font-weight: 600;
             line-height: 1.25;
         }
-        .prose h1 { font-size: 1.5em; }
-        .prose h2 { font-size: 1.3em; }
-        .prose h3 { font-size: 1.1em; }
+
+        .prose h1 {
+            font-size: 1.5em;
+        }
+
+        .prose h2 {
+            font-size: 1.3em;
+        }
+
+        .prose h3 {
+            font-size: 1.1em;
+        }
+
         .prose code {
             background: #f1f5f9;
             color: #475569;
@@ -113,10 +140,12 @@
             font-size: 0.875em;
             font-weight: 500;
         }
+
         .dark .prose code {
             background: #374151;
             color: #e5e7eb;
         }
+
         .prose pre {
             background: #0f172a;
             color: #e2e8f0;
@@ -126,23 +155,29 @@
             margin: 1.5em 0;
             border: 1px solid #1e293b;
         }
+
         .dark .prose pre {
             background: #111827;
             border-color: #374151;
         }
+
         .prose pre code {
             background: transparent;
             color: inherit;
             padding: 0;
             border-radius: 0;
         }
-        .prose ul, .prose ol {
+
+        .prose ul,
+        .prose ol {
             margin: 1em 0;
             padding-left: 1.5em;
         }
+
         .prose li {
             margin-bottom: 0.5em;
         }
+
         .prose blockquote {
             border-left: 4px solid #e2e8f0;
             padding-left: 1rem;
@@ -150,28 +185,34 @@
             color: #64748b;
             font-style: italic;
         }
+
         .dark .prose blockquote {
             border-left-color: #475569;
             color: #9ca3af;
         }
+
         .prose a {
             color: #0ea5e9;
             text-decoration: underline;
             text-decoration-color: #bae6fd;
             text-underline-offset: 2px;
         }
+
         .prose a:hover {
             color: #0284c7;
             text-decoration-color: #0ea5e9;
         }
+
         .dark .prose a {
             color: #38bdf8;
             text-decoration-color: #0369a1;
         }
+
         .dark .prose a:hover {
             color: #0ea5e9;
             text-decoration-color: #38bdf8;
         }
+
         .prose table {
             border-collapse: collapse;
             width: 100%;
@@ -180,22 +221,29 @@
             overflow: hidden;
             border: 1px solid #e2e8f0;
         }
+
         .dark .prose table {
             border-color: #374151;
         }
-        .prose th, .prose td {
+
+        .prose th,
+        .prose td {
             border: 1px solid #e2e8f0;
             padding: 0.75rem;
             text-align: left;
         }
-        .dark .prose th, .dark .prose td {
+
+        .dark .prose th,
+        .dark .prose td {
             border-color: #374151;
         }
+
         .prose th {
             background: #f8fafc;
             font-weight: 600;
             color: #374151;
         }
+
         .dark .prose th {
             background: #1f2937;
             color: #e5e7eb;
@@ -210,6 +258,7 @@
         .choice-button {
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .choice-button:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -226,7 +275,7 @@
             align-items: center;
             gap: 1px;
         }
-        
+
         .typing-dot {
             width: 8px;
             height: 8px;
@@ -238,24 +287,28 @@
         .dark .typing-dot {
             background-color: #64748b;
         }
-        
+
         .typing-dot:nth-child(1) {
             animation-delay: 0ms;
         }
-        
+
         .typing-dot:nth-child(2) {
             animation-delay: 200ms;
         }
-        
+
         .typing-dot:nth-child(3) {
             animation-delay: 400ms;
         }
-        
+
         @keyframes typing {
-            0%, 60%, 100% {
+
+            0%,
+            60%,
+            100% {
                 transform: translateY(0);
                 opacity: 0.4;
             }
+
             30% {
                 transform: translateY(-10px);
                 opacity: 1;
@@ -263,6 +316,7 @@
         }
     </style>
 </head>
+
 <body class="bg-gradient-to-br from-slate-50 to-blue-50 font-sans">
     <div id="root"></div>
     <script type="text/babel">
@@ -280,26 +334,23 @@
                 if (saved !== null) {
                     return JSON.parse(saved);
                 }
-                
+
                 // If no saved preference, use OS/browser default
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                     return true;
                 }
-                
+
                 // Fallback to light mode
                 return false;
             });
             const messagesEndRef = useRef(null);
             const inputRef = useRef(null);
+            const [activeView, setActiveView] = useState('ai-assistant'); // Default view
 
-            // Auto-resize textarea
-            useEffect(() => {
-                if (inputRef.current) {
-                    inputRef.current.style.height = 'auto';
-                    const scrollHeight = inputRef.current.scrollHeight;
-                    inputRef.current.style.height = scrollHeight + 'px';
-                }
-            }, [input]);
+
+
+            // Auto-resize removed for side-panel layout
+
 
             const toggleOutput = (messageIndex) => {
                 const newExpanded = new Set(expandedOutputs);
@@ -329,7 +380,7 @@
             // Listen for OS theme changes
             useEffect(() => {
                 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-                
+
                 const handleThemeChange = (e) => {
                     // Only auto-update if user hasn't manually set a preference
                     const hasManualPreference = localStorage.getItem('kubectl-ai-dark-mode') !== null;
@@ -357,7 +408,7 @@
 
             useEffect(() => {
                 const eventSource = new EventSource('/messages-stream');
-                
+
                 eventSource.onopen = () => {
                     setIsConnected(true);
                     console.log('Connected to kubectl-ai');
@@ -445,7 +496,7 @@
 
             const formatMessage = (message) => {
                 if (!message) return '';
-                
+
                 try {
                     marked.setOptions({
                         breaks: true,
@@ -453,13 +504,13 @@
                         tables: true,
                         sanitize: false
                     });
-                    
+
                     const rawHtml = marked.parse(message);
                     const cleanHtml = DOMPurify.sanitize(rawHtml, {
                         ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
                         ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class']
                     });
-                    
+
                     return cleanHtml;
                 } catch (error) {
                     console.error('Error formatting message:', error);
@@ -470,29 +521,29 @@
             const renderMessage = (message, index) => {
                 const getSourceInfo = (source) => {
                     switch (source) {
-                        case 'user': return { 
-                            name: 'You', 
-                            color: isDarkMode ? 'text-blue-200' : 'text-blue-700', 
-                            bg: isDarkMode ? 'bg-blue-800/40' : 'bg-blue-50', 
-                            avatar: '👤' 
+                        case 'user': return {
+                            name: 'You',
+                            color: isDarkMode ? 'text-blue-200' : 'text-blue-700',
+                            bg: isDarkMode ? 'bg-blue-800/40' : 'bg-blue-50',
+                            avatar: '👤'
                         };
-                        case 'model': return { 
-                            name: 'AI Assistant', 
-                            color: isDarkMode ? 'text-emerald-400' : 'text-emerald-700', 
-                            bg: isDarkMode ? 'bg-emerald-900/30' : 'bg-emerald-50', 
-                            avatar: '🤖' 
+                        case 'model': return {
+                            name: 'AI Assistant',
+                            color: isDarkMode ? 'text-emerald-400' : 'text-emerald-700',
+                            bg: isDarkMode ? 'bg-emerald-900/30' : 'bg-emerald-50',
+                            avatar: '🤖'
                         };
-                        case 'agent': return { 
-                            name: 'AI Assistant', 
-                            color: isDarkMode ? 'text-emerald-400' : 'text-emerald-700', 
-                            bg: isDarkMode ? 'bg-emerald-900/30' : 'bg-emerald-50', 
-                            avatar: '🤖' 
+                        case 'agent': return {
+                            name: 'AI Assistant',
+                            color: isDarkMode ? 'text-emerald-400' : 'text-emerald-700',
+                            bg: isDarkMode ? 'bg-emerald-900/30' : 'bg-emerald-50',
+                            avatar: '🤖'
                         };
-                        default: return { 
-                            name: 'System', 
-                            color: isDarkMode ? 'text-gray-400' : 'text-gray-700', 
-                            bg: isDarkMode ? 'bg-gray-800' : 'bg-gray-50', 
-                            avatar: '⚙️' 
+                        default: return {
+                            name: 'System',
+                            color: isDarkMode ? 'text-gray-400' : 'text-gray-700',
+                            bg: isDarkMode ? 'bg-gray-800' : 'bg-gray-50',
+                            avatar: '⚙️'
                         };
                     }
                 };
@@ -535,10 +586,10 @@
                         return (
                             <MessageWrapper key={index}>
                                 <div className={`prose leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                                     dangerouslySetInnerHTML={{ __html: formatMessage(message.Payload) }} />
+                                    dangerouslySetInnerHTML={{ __html: formatMessage(message.Payload) }} />
                             </MessageWrapper>
                         );
-                    
+
                     case 'error':
                         return (
                             <MessageWrapper key={index} className="error-message">
@@ -551,16 +602,16 @@
                                 </div>
                             </MessageWrapper>
                         );
-                    
+
                     case 'tool-call-request':
                         const toolResponse = findToolResponse(index);
                         const isCompleted = toolResponse !== null;
                         const isOutputExpanded = expandedOutputs.has(index);
-                        
+
                         // Extract stdout from the tool response
                         const getOutputText = (response) => {
                             if (!response || !response.Payload) return '';
-                            
+
                             let payload = response.Payload;
                             if (typeof payload === 'string') {
                                 try {
@@ -569,7 +620,7 @@
                                     return payload; // Return as-is if not valid JSON
                                 }
                             }
-                            
+
                             // Try to extract stdout field, fallback to full payload
                             if (payload && payload.stdout) {
                                 return payload.stdout;
@@ -579,10 +630,10 @@
                                 return String(payload);
                             }
                         };
-                        
+
                         const outputText = isCompleted ? getOutputText(toolResponse) : '';
                         const hasOutput = outputText && outputText.trim().length > 0;
-                        
+
                         return (
                             <MessageWrapper key={index}>
                                 <div className={`border rounded-lg p-4 ${isCompleted ? (isDarkMode ? 'border-emerald-700 bg-emerald-900/20' : 'border-emerald-200 bg-emerald-50') : (isDarkMode ? 'border-blue-700 bg-blue-900/20' : 'border-blue-200 bg-blue-50')}`}>
@@ -601,17 +652,17 @@
                                     </div>
                                     {isCompleted && hasOutput && (
                                         <div className={`mt-3 pt-3 border-t ${isDarkMode ? 'border-emerald-700' : 'border-emerald-200'}`}>
-                                            <button 
+                                            <button
                                                 onClick={() => toggleOutput(index)}
                                                 className={`flex items-center space-x-2 ${isDarkMode ? 'text-emerald-400 hover:text-emerald-300' : 'text-emerald-600 hover:text-emerald-700'} focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 rounded px-2 py-1 transition-colors`}
                                             >
                                                 <span className="text-xs font-medium">
                                                     {isOutputExpanded ? 'Hide output' : 'Show output'}
                                                 </span>
-                                                <svg 
+                                                <svg
                                                     className={"w-3 h-3 transition-transform duration-200 " + (isOutputExpanded ? "rotate-180" : "")}
-                                                    fill="none" 
-                                                    stroke="currentColor" 
+                                                    fill="none"
+                                                    stroke="currentColor"
                                                     viewBox="0 0 24 24"
                                                 >
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -627,11 +678,11 @@
                                 </div>
                             </MessageWrapper>
                         );
-                    
+
                     case 'tool-call-response':
                         // Skip rendering individual tool responses since they're shown with the request
                         return null;
-                    
+
                     case 'user-choice-request':
                         const choiceRequest = message.Payload;
                         return (
@@ -642,24 +693,22 @@
                                         <span className={`${isDarkMode ? 'text-amber-300' : 'text-amber-800'} font-semibold`}>Decision Required</span>
                                     </div>
                                     <div className={`prose mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                                         dangerouslySetInnerHTML={{ __html: formatMessage(choiceRequest.Prompt) }} />
+                                        dangerouslySetInnerHTML={{ __html: formatMessage(choiceRequest.Prompt) }} />
                                     <div className="space-y-3">
                                         {choiceRequest.Options.map((option, idx) => (
                                             <button
                                                 key={idx}
                                                 onClick={() => chooseOption(idx + 1)}
-                                                className={`choice-button w-full text-left px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors ${
-                                                    isDarkMode 
-                                                        ? 'bg-gray-800 border-gray-600 hover:border-brand-500 hover:bg-gray-700' 
-                                                        : 'bg-white border-gray-200 hover:border-brand-300 hover:bg-brand-50'
-                                                }`}
+                                                className={`choice-button w-full text-left px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors ${isDarkMode
+                                                    ? 'bg-gray-800 border-gray-600 hover:border-brand-500 hover:bg-gray-700'
+                                                    : 'bg-white border-gray-200 hover:border-brand-300 hover:bg-brand-50'
+                                                    }`}
                                             >
                                                 <div className="flex items-center">
-                                                    <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium mr-3 ${
-                                                        isDarkMode 
-                                                            ? 'bg-brand-900/50 text-brand-300' 
-                                                            : 'bg-brand-100 text-brand-700'
-                                                    }`}>
+                                                    <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium mr-3 ${isDarkMode
+                                                        ? 'bg-brand-900/50 text-brand-300'
+                                                        : 'bg-brand-100 text-brand-700'
+                                                        }`}>
                                                         {idx + 1}
                                                     </span>
                                                     <span className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{option.label}</span>
@@ -670,7 +719,7 @@
                                 </div>
                             </MessageWrapper>
                         );
-                    
+
                     default:
                         return (
                             <MessageWrapper key={index}>
@@ -686,7 +735,7 @@
             };
 
             const canSendMessage = agentState === 'idle' || agentState === 'done' || agentState === 'waiting-for-input';
-            const isWaitingForChoice = agentState === 'waiting-for-input' && messages.length > 0 && 
+            const isWaitingForChoice = agentState === 'waiting-for-input' && messages.length > 0 &&
                 messages[messages.length - 1].Type === 'user-choice-request';
 
             const getInputPlaceholder = () => {
@@ -726,7 +775,7 @@
                 switch (agentState) {
                     case 'idle': return { text: 'Ready', color: 'text-emerald-600', bgColor: 'bg-emerald-100', icon: '✅' };
                     case 'done': return { text: 'Ready', color: 'text-emerald-600', bgColor: 'bg-emerald-100', icon: '✅' };
-                    case 'waiting-for-input': return isWaitingForChoice 
+                    case 'waiting-for-input': return isWaitingForChoice
                         ? { text: 'Waiting for choice', color: 'text-amber-600', bgColor: 'bg-amber-100', icon: '🤔' }
                         : { text: 'Ready', color: 'text-emerald-600', bgColor: 'bg-emerald-100', icon: '✅' };
                     case 'running': return { text: 'Working', color: 'text-blue-600', bgColor: 'bg-blue-100', icon: '⚡' };
@@ -768,11 +817,10 @@
                                 {/* Dark Mode Toggle */}
                                 <button
                                     onClick={toggleDarkMode}
-                                    className={`p-2 rounded-lg transition-colors duration-200 ${
-                                        isDarkMode 
-                                            ? 'bg-gray-700 hover:bg-gray-600 text-yellow-400' 
-                                            : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-                                    }`}
+                                    className={`p-2 rounded-lg transition-colors duration-200 ${isDarkMode
+                                        ? 'bg-gray-700 hover:bg-gray-600 text-yellow-400'
+                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                                        }`}
                                     title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
                                 >
                                     {isDarkMode ? (
@@ -788,88 +836,197 @@
                             </div>
                         </div>
                     </div>
-                    
-                    {/* Messages Area */}
-                    <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
-                        <div className="max-w-4xl mx-auto">
-                            {messages.length === 0 ? (
-                                <div className="text-center py-16">
-                                    <div className="w-16 h-16 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                        <span className="text-white text-2xl">🚀</span>
+
+                    {/* Main Container - Flex Row */}
+                    <div className="flex-1 flex overflow-hidden">
+
+                        {/* Left Sidebar - Navigation */}
+                        <div className={`w-64 flex flex-col border-r ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                            <div className="p-4">
+                                <h3 className={`text-xs font-semibold uppercase tracking-wider mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Cluster Resources</h3>
+                                <nav className="space-y-1">
+                                    <button
+                                        onClick={() => setActiveView('ai-assistant')}
+                                        className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${activeView === 'ai-assistant'
+                                            ? (isDarkMode ? 'bg-brand-900/50 text-brand-300' : 'bg-brand-50 text-brand-700')
+                                            : (isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50')
+                                            }`}
+                                    >
+                                        <span className="truncate">AI Assistant</span>
+                                    </button>
+                                    {['Namespace', 'Deployments', 'Services'].map((item) => (
+
+                                        <button
+                                            key={item}
+                                            onClick={() => setActiveView(item.toLowerCase())}
+                                            className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${activeView === item.toLowerCase()
+                                                ? (isDarkMode ? 'bg-brand-900/50 text-brand-300' : 'bg-brand-50 text-brand-700')
+                                                : (isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50')
+                                                }`}
+                                        >
+                                            <span className="truncate">{item}</span>
+                                        </button>
+                                    ))}
+                                </nav>
+
+                                <h3 className={`text-xs font-semibold uppercase tracking-wider mt-8 mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Configuration</h3>
+                                <nav className="space-y-1">
+                                    <button
+                                        onClick={() => setActiveView('settings')}
+                                        className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${activeView === 'settings'
+                                            ? (isDarkMode ? 'bg-brand-900/50 text-brand-300' : 'bg-brand-50 text-brand-700')
+                                            : (isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50')
+                                            }`}
+                                    >
+                                        <span>Settings</span>
+                                    </button>
+                                </nav>
+                            </div>
+                        </div>
+
+                        {/* Center Area - Main View Config */}
+                        <div className={`flex-1 overflow-auto p-8 relative ${isDarkMode ? 'bg-gray-900' : 'bg-slate-50'}`}>
+                            {activeView === 'settings' ? (
+                                <div className="max-w-2xl mx-auto">
+                                    <h2 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Settings</h2>
+                                    <div className={`p-6 rounded-xl border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div>
+                                                <h3 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Appearance</h3>
+                                                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Customize the look and feel</p>
+                                            </div>
+                                            <button
+                                                onClick={toggleDarkMode}
+                                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isDarkMode
+                                                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                                                    : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                                                    }`}
+                                            >
+                                                {isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                                            </button>
+                                        </div>
                                     </div>
-                                    <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'} mb-2`}>Welcome to kubectl-ai</h2>
-                                    <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-8 max-w-md mx-auto`}>
-                                        I'm your intelligent Kubernetes assistant. I can help you manage deployments, 
-                                        troubleshoot issues, and answer questions about your cluster.
-                                    </p>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                                        <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 shadow-sm border`}>
-                                            <div className="text-2xl mb-2">⚙️</div>
-                                            <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Manage Resources</div>
-                                            <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Scale deployments, update configs</div>
-                                        </div>
-                                        <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 shadow-sm border`}>
-                                            <div className="text-2xl mb-2">🔍</div>
-                                            <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Debug Issues</div>
-                                            <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Find and fix problems quickly</div>
-                                        </div>
-                                        <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 shadow-sm border`}>
-                                            <div className="text-2xl mb-2">📊</div>
-                                            <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Get Insights</div>
-                                            <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Monitor and analyze your cluster</div>
-                                        </div>
+                                </div>
+                            ) : activeView === 'ai-assistant' ? (
+                                <div className="max-w-4xl mx-auto h-full flex flex-col">
+                                    <div className="flex-1 overflow-y-auto px-2 py-4 custom-scrollbar">
+                                        {messages.length === 0 ? (
+                                            <div className="text-center py-16">
+                                                <div className="w-16 h-16 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                                    <span className="text-white text-2xl">🚀</span>
+                                                </div>
+                                                <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'} mb-2`}>Welcome to kubectl-ai</h2>
+                                                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-8 max-w-md mx-auto`}>
+                                                    I'm your intelligent Kubernetes assistant. I can help you manage deployments,
+                                                    troubleshoot issues, and answer questions about your cluster.
+                                                </p>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                                                    <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 shadow-sm border`}>
+                                                        <div className="text-2xl mb-2">⚙️</div>
+                                                        <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Manage Resources</div>
+                                                        <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Scale deployments, update configs</div>
+                                                    </div>
+                                                    <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 shadow-sm border`}>
+                                                        <div className="text-2xl mb-2">🔍</div>
+                                                        <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Debug Issues</div>
+                                                        <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Find and fix problems quickly</div>
+                                                    </div>
+                                                    <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 shadow-sm border`}>
+                                                        <div className="text-2xl mb-2">📊</div>
+                                                        <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Get Insights</div>
+                                                        <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Monitor and analyze your cluster</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {messages.map((message, index) => renderMessage(message, index))}
+                                                {showTypingIndicator && <TypingIndicator />}
+                                            </>
+                                        )}
+                                        <div ref={messagesEndRef} />
                                     </div>
                                 </div>
                             ) : (
-                                <>
-                                    {messages.map((message, index) => renderMessage(message, index))}
-                                    {showTypingIndicator && <TypingIndicator />}
-                                </>
-                            )}
-                            <div ref={messagesEndRef} />
-                        </div>
-                    </div>
-                    
-                    {/* Input Area */}
-                    <div className={`${isDarkMode ? 'bg-gray-800/80' : 'bg-white/80'} backdrop-blur-sm ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} border-t p-6`}>
-                        <div className="max-w-4xl mx-auto">
-                            <form onSubmit={handleSubmit} className="flex space-x-3">
-                                <div className="flex-1 relative">
-                                    <textarea
-                                        ref={inputRef}
-                                        value={input}
-                                        onChange={(e) => setInput(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' && !e.shiftKey) {
-                                                e.preventDefault();
-                                                handleSubmit(e);
-                                            }
-                                        }}
-                                        placeholder={getInputPlaceholder()}
-                                        disabled={!canSendMessage}
-                                        className={`w-full px-4 py-3 pr-12 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors resize-none overflow-y-auto max-h-40 custom-scrollbar align-bottom ${
-                                            isDarkMode 
-                                                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                                                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
-                                        } ${!canSendMessage ? (isDarkMode ? 'bg-gray-800 text-gray-500' : 'bg-gray-50 text-gray-500') : ''}`}
-                                        rows="1"
-                                    />
-                                    {agentState === 'running' && (
-                                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-brand-500"></div>
+                                <div className="max-w-4xl mx-auto">
+
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h2 className={`text-2xl font-bold capitalize ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{activeView}</h2>
+                                        <div className="flex space-x-2">
+                                            <button className={`px-3 py-1.5 text-sm rounded-md border ${isDarkMode ? 'border-gray-700 text-gray-300 hover:bg-gray-800' : 'border-gray-200 text-gray-600 hover:bg-white'}`}>
+                                                Refresh
+                                            </button>
+                                            <button className="px-3 py-1.5 text-sm rounded-md bg-brand-600 text-white hover:bg-brand-700">
+                                                Create New
+                                            </button>
                                         </div>
-                                    )}
+                                    </div>
+
+                                    {/* Placeholder Content for Resource Views */}
+                                    <div className={`rounded-xl border border-dashed p-12 text-center ${isDarkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-300 bg-white/50'}`}>
+                                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center text-3xl opacity-50">
+                                            {activeView === 'namespace' ? '🗂️' : activeView === 'deployments' ? '🚀' : '🔌'}
+                                        </div>
+                                        <h3 className={`text-lg font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>No {activeView} found</h3>
+                                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                            Use the AI Assistant on the right to fetch or create {activeView}.
+                                        </p>
+                                    </div>
                                 </div>
-                                <button
-                                    type="submit"
-                                    disabled={!canSendMessage || !input.trim()}
-                                    className="px-6 py-3 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl hover:from-brand-600 hover:to-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-sm self-end"
-                                >
-                                    Send
-                                </button>
-                            </form>
-                            <div className={`flex items-center justify-center mt-3 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                <span>💡 Try: "scale nginx to 3 replicas" or "show me pod status"</span>
+                            )}
+                        </div>
+
+                        {/* Right Side Panel - AI Chat Copilot */}
+                        <div className={`w-96 flex flex-col border-l shadow-2xl z-20 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                            {/* Chat Header */}
+                            <div className={`p-4 border-b flex items-center justify-between shadow-sm z-10 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                                <div className="flex items-center space-x-2">
+                                    <span className="text-xl">🤖</span>
+                                    <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>AI Assistant</span>
+                                </div>
+                                <div className={"w-2 h-2 rounded-full " + (isConnected ? 'bg-emerald-500' : 'bg-red-500') + " " + (!isConnected ? 'status-pulse' : '')} title={isConnected ? "Connected" : "Disconnected"}></div>
+                            </div>
+
+                            {/* Spacer to push input to bottom if needed, though flex-col handles it */}
+                            <div className="flex-1 bg-opacity-50"></div>
+
+
+                            {/* Input Area */}
+                            <div className={`p-4 border-t ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                                <form onSubmit={handleSubmit} className="flex flex-col">
+                                    <div className="relative mb-3">
+                                        <textarea
+                                            ref={inputRef}
+                                            value={input}
+                                            onChange={(e) => setInput(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && !e.shiftKey) {
+                                                    e.preventDefault();
+                                                    handleSubmit(e);
+                                                }
+                                            }}
+                                            placeholder={getInputPlaceholder()}
+                                            disabled={!canSendMessage}
+                                            className={`w-full px-3 py-2 text-sm border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none custom-scrollbar ${isDarkMode
+                                                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                                                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                                                } ${!canSendMessage ? (isDarkMode ? 'bg-gray-800 text-gray-500' : 'bg-gray-50 text-gray-500') : ''}`}
+                                            rows="3"
+                                        />
+                                        {agentState === 'running' && (
+                                            <div className="absolute right-2 bottom-2">
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-500"></div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={!canSendMessage || !input.trim()}
+                                        className="w-full px-4 py-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-lg hover:from-brand-600 hover:to-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium shadow-sm"
+                                    >
+                                        Send
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -880,4 +1037,5 @@
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
-</html> 
+
+</html>
