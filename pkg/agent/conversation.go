@@ -220,30 +220,8 @@ func (s *Agent) Init(ctx context.Context) error {
 
 	log.Info("Created temporary working directory", "workDir", workDir)
 
-	systemPrompt, err := s.generatePrompt(ctx, defaultSystemPromptTemplate, PromptData{
-		Tools:             s.Tools,
-		EnableToolUseShim: s.EnableToolUseShim,
-		// RunOnce is a good proxy to indicate the agentic session is non-interactive mode.
-		SessionIsInteractive: !s.RunOnce,
-	})
-	if err != nil {
-		return fmt.Errorf("generating system prompt: %w", err)
-	}
-
-	// Start a new chat session
-	s.llmChat = gollm.NewRetryChat(
-		s.LLM.StartChat(systemPrompt, s.Model),
-		gollm.RetryConfig{
-			MaxAttempts:    3,
-			InitialBackoff: 10 * time.Second,
-			MaxBackoff:     60 * time.Second,
-			BackoffFactor:  2,
-			Jitter:         true,
-		},
-	)
-	err = s.llmChat.Initialize(s.session.ChatMessageStore.ChatMessages())
-	if err != nil {
-		return fmt.Errorf("initializing chat session: %w", err)
+	if err := s.reinitializeChat(ctx); err != nil {
+		return err
 	}
 
 	if s.MCPClientEnabled {
@@ -711,7 +689,7 @@ func (c *Agent) handleMetaQuery(ctx context.Context, query string) (answer strin
 	case "model":
 		return "Current model is `" + c.Model + "`", true, nil
 	case "models":
-		models, err := c.listModels(ctx)
+		models, err := c.ListModels(ctx)
 		if err != nil {
 			return "", false, fmt.Errorf("listing models: %w", err)
 		}
@@ -878,7 +856,15 @@ func (c *Agent) loadSession(sessionID string) error {
 	return nil
 }
 
-func (c *Agent) listModels(ctx context.Context) ([]string, error) {
+func (c *Agent) GetModel() string {
+	c.sessionMu.Lock()
+	defer c.sessionMu.Unlock()
+	return c.Model
+}
+
+func (c *Agent) ListModels(ctx context.Context) ([]string, error) {
+	c.sessionMu.Lock()
+	defer c.sessionMu.Unlock()
 	if c.availableModels == nil {
 		modelNames, err := c.LLM.ListModels(ctx)
 		if err != nil {
@@ -887,6 +873,43 @@ func (c *Agent) listModels(ctx context.Context) ([]string, error) {
 		c.availableModels = modelNames
 	}
 	return c.availableModels, nil
+}
+
+func (c *Agent) SetModel(ctx context.Context, model string) error {
+	c.sessionMu.Lock()
+	defer c.sessionMu.Unlock()
+
+	c.Model = model
+	// Re-initialize the chat with the new model
+	return c.reinitializeChat(ctx)
+}
+
+func (c *Agent) reinitializeChat(ctx context.Context) error {
+	systemPrompt, err := c.generatePrompt(ctx, defaultSystemPromptTemplate, PromptData{
+		Tools:             c.Tools,
+		EnableToolUseShim: c.EnableToolUseShim,
+		// RunOnce is a good proxy to indicate the agentic session is non-interactive mode.
+		SessionIsInteractive: !c.RunOnce,
+	})
+	if err != nil {
+		return fmt.Errorf("generating system prompt: %w", err)
+	}
+
+	// Start a new chat session
+	c.llmChat = gollm.NewRetryChat(
+		c.LLM.StartChat(systemPrompt, c.Model),
+		gollm.RetryConfig{
+			MaxAttempts:    3,
+			InitialBackoff: 10 * time.Second,
+			MaxBackoff:     60 * time.Second,
+			BackoffFactor:  2,
+			Jitter:         true,
+		},
+	)
+	if err := c.llmChat.Initialize(c.session.ChatMessageStore.ChatMessages()); err != nil {
+		return fmt.Errorf("initializing chat session: %w", err)
+	}
+	return nil
 }
 
 func (c *Agent) DispatchToolCalls(ctx context.Context) error {

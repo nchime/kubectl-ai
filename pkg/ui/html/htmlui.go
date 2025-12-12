@@ -120,6 +120,8 @@ func NewHTMLUserInterface(agent *agent.Agent, listenAddress string, journal jour
 	mux.HandleFunc("GET /messages-stream", u.serveMessagesStream)
 	mux.HandleFunc("POST /send-message", u.handlePOSTSendMessage)
 	mux.HandleFunc("POST /choose-option", u.handlePOSTChooseOption)
+	mux.HandleFunc("GET /models", u.handleGETModels)
+	mux.HandleFunc("POST /set-model", u.handlePOSTSetModel)
 
 	httpServerListener, err := net.Listen("tcp", listenAddress)
 	if err != nil {
@@ -284,10 +286,12 @@ func (u *HTMLUserInterface) getCurrentStateJSON() ([]byte, error) {
 	}
 
 	agentState := u.agent.Session().AgentState
+	currentModel := u.agent.GetModel()
 
 	data := map[string]interface{}{
-		"messages":   messages,
-		"agentState": agentState,
+		"messages":     messages,
+		"agentState":   agentState,
+		"currentModel": currentModel,
 	}
 	return json.Marshal(data)
 }
@@ -318,6 +322,58 @@ func (u *HTMLUserInterface) handlePOSTChooseOption(w http.ResponseWriter, req *h
 
 	// Send the choice to the agent
 	u.agent.Input <- &api.UserChoiceResponse{Choice: choiceIndex}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (u *HTMLUserInterface) handleGETModels(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+	log := klog.FromContext(ctx)
+
+	models, err := u.agent.ListModels(ctx)
+	if err != nil {
+		log.Error(err, "listing models")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(models); err != nil {
+		log.Error(err, "encoding models")
+	}
+}
+
+func (u *HTMLUserInterface) handlePOSTSetModel(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+	log := klog.FromContext(ctx)
+
+	if err := req.ParseForm(); err != nil {
+		log.Error(err, "parsing form")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	log.Info("got request", "values", req.Form)
+
+	model := req.FormValue("model")
+	if model == "" {
+		http.Error(w, "missing model", http.StatusBadRequest)
+		return
+	}
+
+	if err := u.agent.SetModel(ctx, model); err != nil {
+		log.Error(err, "setting model")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Broadcast the new state including the new model
+	jsonData, err := u.getCurrentStateJSON()
+	if err != nil {
+		log.Error(err, "getting current state after setting model")
+	} else {
+		u.broadcaster.Broadcast(jsonData)
+	}
 
 	w.WriteHeader(http.StatusOK)
 }

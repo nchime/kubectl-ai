@@ -346,6 +346,8 @@
             const messagesEndRef = useRef(null);
             const inputRef = useRef(null);
             const [activeView, setActiveView] = useState('ai-assistant'); // Default view
+            const [availableModels, setAvailableModels] = useState([]);
+            const [currentModel, setCurrentModel] = useState('');
 
 
 
@@ -419,6 +421,7 @@
                         const data = JSON.parse(event.data);
                         setMessages(data.messages || []);
                         setAgentState(data.agentState || 'idle');
+                        if (data.currentModel) setCurrentModel(data.currentModel);
                     } catch (error) {
                         console.error('Error parsing server data:', error);
                     }
@@ -433,6 +436,38 @@
                     eventSource.close();
                 };
             }, []);
+
+            useEffect(() => {
+                const fetchModels = async () => {
+                    try {
+                        const response = await fetch('/models');
+                        if (response.ok) {
+                            const data = await response.json();
+                            setAvailableModels(data || []);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching models:', error);
+                    }
+                };
+
+                fetchModels();
+            }, []);
+
+            const handleModelChange = async (e) => {
+                const newModel = e.target.value;
+                try {
+                    const response = await fetch('/set-model', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'model=' + encodeURIComponent(newModel)
+                    });
+                    if (response.ok) {
+                        setCurrentModel(newModel);
+                    }
+                } catch (error) {
+                    console.error('Error setting model:', error);
+                }
+            };
 
             useEffect(() => {
                 const canSendMessage = agentState === 'idle' || agentState === 'done' || agentState === 'waiting-for-input';
@@ -904,6 +939,32 @@
                                             >
                                                 {isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                                             </button>
+                                        </div>
+                                    </div>
+
+                                    {/* LLM Model Settings */}
+                                    <div className={`p-6 rounded-xl border mt-6 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div>
+                                                <h3 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>LLM Model</h3>
+                                                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Select the AI model logic</p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-2">
+                                            <select
+                                                value={currentModel}
+                                                onChange={handleModelChange}
+                                                className={`w-full px-3 py-2 text-sm border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all ${isDarkMode
+                                                    ? 'bg-gray-700 border-gray-600 text-white'
+                                                    : 'bg-white border-gray-300 text-gray-900'
+                                                    }`}
+                                            >
+                                                {availableModels.map((model) => (
+                                                    <option key={model} value={model}>
+                                                        {model}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
