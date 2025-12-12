@@ -65,3 +65,10 @@ MCP 도구(예: sequential-thinking)는 MCPClient를 통해 외부 서버로 요
 도구 등록: 활성화되면 InitializeMCPClient 함수가 실행되어 sequential-thinking 같은 도구들을 LLM이 사용할 수 있는 도구 목록(a.Tools)에 추가합니다 (pkg/agent/mcp_client.go).
 앞서 제가 Makefile을 수정한 것은 이 MCPClientEnabled 플래그를 true로 켜주는 옵션(--mcp-client)을 추가한 것입니다. 이제 앱을 재시작하면 코드가 정상적으로 MCP 기능을 사용하게 됩니다.
 
+------------
+
+make build
+kubectl-ai --list-sessions
+kubectl-ai --ui-type web
+make dev-html  
+
