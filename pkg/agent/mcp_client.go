@@ -225,3 +225,33 @@ func (a *Agent) CloseMCPClient() error {
 	}
 	return nil
 }
+
+// AddMCPServer adds a new MCP server to the agent configuration
+func (a *Agent) AddMCPServer(ctx context.Context, config mcp.ServerConfig) error {
+	if a.mcpManager == nil {
+		return fmt.Errorf("MCP manager not initialized")
+	}
+	if err := a.mcpManager.AddServer(ctx, config); err != nil {
+		return err
+	}
+	return a.UpdateMCPStatus(ctx, true)
+}
+
+// RemoveMCPServer removes an MCP server from the agent configuration
+func (a *Agent) RemoveMCPServer(ctx context.Context, name string) error {
+	if a.mcpManager == nil {
+		return fmt.Errorf("MCP manager not initialized")
+	}
+	if err := a.mcpManager.RemoveServer(name); err != nil {
+		return err
+	}
+	return a.UpdateMCPStatus(ctx, true)
+}
+
+// ListMCPServers returns the list of configured MCP servers
+func (a *Agent) ListMCPServers(ctx context.Context) ([]mcp.ServerConfig, error) {
+	if a.mcpManager == nil {
+		return nil, fmt.Errorf("MCP manager not initialized")
+	}
+	return a.mcpManager.ListServers(), nil
+}

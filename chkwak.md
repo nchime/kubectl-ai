@@ -28,3 +28,40 @@ MCP 통신:
 Manager와 Client가 실제 MCP 서버(예: 별도 프로세스)에 JSON-RPC 메시지를 보내 툴 실행을 요청.
 결과 반환: MCP 서버가 실행 결과를 반환하면, 이 결과는 다시 conversation.go를 통해 LLM에게 "Observation"(관찰 결과)으로 전달됨.
 최종 응답: LLM은 툴 실행 결과를 바탕으로 최종 답변을 생성하여 사용자에게 보여줌.
+
+
+
+
+현재 코드 기준으로 지연어로 입력된 질문이 응답을 받는 실제 과정을 단계적으로 설명해줘
+--------------
+
+사용자 입력 (Frontend -> Backend):
+사용자가 채팅창에 질문을 입력하면 브라우저는 /send-message API를 호출합니다.
+백엔드(htmlui.go)의 handlePOSTSendMessage 함수가 이 요청을 받아 에이전트의 입력 채널(u.agent.Input)로 메시지를 전달합니다.
+질문 접수 및 상태 변경 (Agent Loop):
+별도의 고루틴(Goroutine)으로 실행 중인 에이전트의 메인 루프(chatLoop)가 입력 채널에서 질문을 감지합니다.
+에이전트 상태가 Running으로 변경되고, 질문이 현재 대화 컨텍스트에 추가됩니다.
+LLM 추론 (Thinking):
+현재까지의 대화 내용(시스템 프롬프트 + 이전 대화 + 새로운 질문)을 가지고 LLM에 요청을 보냅니다(c.llmChat.SendStreaming).
+이때 사용할 수 있는 도구(Kubectl 명령어, MCP 도구 등)의 정의도 함께 전달됩니다.
+LLM은 질문을 분석하여 바로 답변할지, 아니면 도구를 사용해야 할지 결정합니다.
+도구 실행 (Executing - 필요한 경우):
+만약 LLM이 도구 사용이 필요하다고 판단하면(예: kubectl get pods), 함수 호출 응답을 보냅니다.
+에이전트는 DispatchToolCalls 함수를 통해 해당 도구를 실제로 실행합니다.
+Kubernetes 관련 도구는 pkg/tools를 통해 실행됩니다.
+MCP 도구(예: sequential-thinking)는 MCPClient를 통해 외부 서버로 요청을 보냅니다.
+도구 실행 결과(Output)나 오류가 다시 대화 컨텍스트에 추가됩니다.
+최종 응답 생성 및 전달:
+도구 실행 결과가 포함된 새로운 컨텍스트로 LLM이 다시 추론을 수행합니다.
+최종적인 자연어 답변이 생성되면 스트리밍 형태로 사용자에게 전달됩니다.
+백엔드는 SSE(Server-Sent Events)를 통해 브라우저로 실시간 데이터를 전송하고, 채팅창에 답변이 표시됩니다.
+
+
+코드 상으로는 MCP 기능이 완전히 구현되어 있습니다. 다만, 앱을 실행할 때 기본적으로 '비활성화(Disabled)' 상태로 시작하도록 설정되어 있어서 사용되지 않고 있었습니다.
+
+구체적으로:
+
+초기화 로직 (Init 함수): 에이전트가 시작될 때 MCPClientEnabled 플래그를 확인합니다. 이 값이 true여야만 MCP 매니저를 초기화하고 도구를 등록합니다 (pkg/agent/conversation.go).
+도구 등록: 활성화되면 InitializeMCPClient 함수가 실행되어 sequential-thinking 같은 도구들을 LLM이 사용할 수 있는 도구 목록(a.Tools)에 추가합니다 (pkg/agent/mcp_client.go).
+앞서 제가 Makefile을 수정한 것은 이 MCPClientEnabled 플래그를 true로 켜주는 옵션(--mcp-client)을 추가한 것입니다. 이제 앱을 재시작하면 코드가 정상적으로 MCP 기능을 사용하게 됩니다.
+

@@ -52,16 +52,18 @@ type MCPStatus struct {
 
 // Manager handles MCP client connections and tool discovery
 type Manager struct {
-	config  *Config
-	clients map[string]*Client
-	mu      sync.RWMutex
+	config     *Config
+	configPath string
+	clients    map[string]*Client
+	mu         sync.RWMutex
 }
 
 // NewManager creates a new MCP manager with the given configuration
-func NewManager(config *Config) *Manager {
+func NewManager(config *Config, configPath string) *Manager {
 	return &Manager{
-		config:  config,
-		clients: make(map[string]*Client),
+		config:     config,
+		configPath: configPath,
+		clients:    make(map[string]*Client),
 	}
 }
 
@@ -70,13 +72,21 @@ func NewManager(config *Config) *Manager {
 func InitializeManager() (*Manager, error) {
 	klog.V(1).Info("Initializing MCP client functionality")
 
-	config, err := LoadConfig("")
+	// Determine config path (default if empty)
+	configPath := ""
+	config, err := LoadConfig(configPath)
 	if err != nil {
 		klog.V(2).Info("Failed to load MCP config", "error", err)
 		return nil, err
 	}
 
-	return NewManager(config), nil
+	// If path was empty, LoadConfig uses default, but doesn't return the path.
+	// We need to resolve it explicitly to store it.
+	if configPath == "" {
+		configPath, _ = DefaultConfigPath()
+	}
+
+	return NewManager(config, configPath), nil
 }
 
 // =============================================================================
@@ -176,6 +186,119 @@ func (m *Manager) ListClients() []*Client {
 	}
 
 	return clients
+}
+
+// ListServers returns the list of all configured MCP servers
+func (m *Manager) ListServers() []ServerConfig {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	// Return a copy to avoid race conditions if the caller modifies it (though slice is ref, elements are structs)
+	// For deep copy we might need more, but for config reading it's likely fine if we just return the slice.
+	// But let's be safe and copy.
+	servers := make([]ServerConfig, len(m.config.Servers))
+	copy(servers, m.config.Servers)
+	return servers
+}
+
+// AddServer adds a new MCP server configuration, saves it, and connects to it
+func (m *Manager) AddServer(ctx context.Context, serverCfg ServerConfig) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	// Validate configuration
+	if err := ValidateServerConfig(serverCfg); err != nil {
+		return err
+	}
+
+	// Check for duplicate name
+	for _, s := range m.config.Servers {
+		if s.Name == serverCfg.Name {
+			return fmt.Errorf("server with name %q already exists", serverCfg.Name)
+		}
+	}
+
+	// Add to configuration
+	m.config.Servers = append(m.config.Servers, serverCfg)
+
+	// Save configuration
+	if err := m.config.Save(m.configPath); err != nil {
+		// Rollback on save failure
+		m.config.Servers = m.config.Servers[:len(m.config.Servers)-1]
+		return fmt.Errorf("failed to save config: %w", err)
+	}
+
+	// Connect to the new server
+	// Convert environment map to slice
+	var envSlice []string
+	for k, v := range serverCfg.Env {
+		envSlice = append(envSlice, fmt.Sprintf("%s=%s", k, v))
+	}
+
+	clientConfig := ClientConfig{
+		Name:         serverCfg.Name,
+		Command:      serverCfg.Command,
+		Args:         serverCfg.Args,
+		Auth:         serverCfg.Auth,
+		OAuthConfig:  serverCfg.OAuthConfig,
+		Env:          envSlice,
+		URL:          serverCfg.URL,
+		Timeout:      serverCfg.Timeout,
+		UseStreaming: serverCfg.UseStreaming,
+		SkipVerify:   serverCfg.SkipVerify,
+	}
+
+	client := NewClient(clientConfig)
+	if err := client.Connect(ctx); err != nil {
+		// Just log error, don't fail the addition operation since config is already saved
+		klog.Error(fmt.Errorf(ErrServerConnectionFmt, serverCfg.Name, err))
+	} else {
+		m.clients[serverCfg.Name] = client
+		klog.V(2).Info("Connected to new MCP server", "name", serverCfg.Name)
+	}
+
+	return nil
+}
+
+// RemoveServer removes an MCP server configuration, saves it, and closes the connection
+func (m *Manager) RemoveServer(name string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	found := false
+	var newServers []ServerConfig
+	for _, s := range m.config.Servers {
+		if s.Name == name {
+			found = true
+			continue
+		}
+		newServers = append(newServers, s)
+	}
+
+	if !found {
+		return fmt.Errorf("server %q not found", name)
+	}
+
+	// Remove from configuration
+	oldServers := m.config.Servers
+	m.config.Servers = newServers
+
+	// Save configuration
+	if err := m.config.Save(m.configPath); err != nil {
+		// Rollback
+		m.config.Servers = oldServers
+		return fmt.Errorf("failed to save config: %w", err)
+	}
+
+	// Close and remove client logic
+	if client, exists := m.clients[name]; exists {
+		if err := client.Close(); err != nil {
+			klog.Warningf("Error closing client for server %s: %v", name, err)
+		}
+		delete(m.clients, name)
+	}
+
+	return nil
 }
 
 // =============================================================================

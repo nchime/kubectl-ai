@@ -30,6 +30,7 @@ import (
 	"github.com/GoogleCloudPlatform/kubectl-ai/pkg/agent"
 	"github.com/GoogleCloudPlatform/kubectl-ai/pkg/api"
 	"github.com/GoogleCloudPlatform/kubectl-ai/pkg/journal"
+	"github.com/GoogleCloudPlatform/kubectl-ai/pkg/mcp"
 	"github.com/GoogleCloudPlatform/kubectl-ai/pkg/ui"
 	"github.com/charmbracelet/glamour"
 	"golang.org/x/sync/errgroup"
@@ -122,6 +123,9 @@ func NewHTMLUserInterface(agent *agent.Agent, listenAddress string, journal jour
 	mux.HandleFunc("POST /choose-option", u.handlePOSTChooseOption)
 	mux.HandleFunc("GET /models", u.handleGETModels)
 	mux.HandleFunc("POST /set-model", u.handlePOSTSetModel)
+	mux.HandleFunc("GET /mcp-servers", u.handleGETMCPServers)
+	mux.HandleFunc("POST /mcp-server/add", u.handlePOSTAddMCPServer)
+	mux.HandleFunc("POST /mcp-server/remove", u.handlePOSTRemoveMCPServer)
 
 	httpServerListener, err := net.Listen("tcp", listenAddress)
 	if err != nil {
@@ -372,6 +376,152 @@ func (u *HTMLUserInterface) handlePOSTSetModel(w http.ResponseWriter, req *http.
 	if err != nil {
 		log.Error(err, "getting current state after setting model")
 	} else {
+		u.broadcaster.Broadcast(jsonData)
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (u *HTMLUserInterface) handleGETMCPServers(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+	log := klog.FromContext(ctx)
+
+	// Since we don't have a direct ListMCPServers on Agent that returns a slice of configs,
+	// we can infer it from the status or add a method.
+	// But actually, we have GetMCPStatusText...
+	// Wait, the UI needs the raw config to display and edit.
+	// The Agent.mcpManager has the config.
+	// But we can't access mcpManager directly from here as it is private in Agent (Wait, it is private: mcpManager *mcp.Manager).
+	// But we exposed Add/Remove.
+	// We might need to expose ListMCPServers on Agent that returns []mcp.ServerConfig.
+
+	// Let's check Agent again. It has GetMCPStatus, which returns *api.MCPStatus.
+	// *api.MCPStatus has ServerInfoList which has Name, Command.
+	// It does NOT have the full config like Env, Args, etc.
+	// The user wants to see the list.
+	// If the user wants to see the full config to edit, we might need more.
+	// But for now, listing what we have (Name, Command/URL) might be enough or we need to expose more.
+	// The request says "mcp 리스트를 조회하고".
+	// The `api.MCPStatus` gives: Name, Command, IsLegacy, IsConnected, AvailableTools.
+	// It doesn't give URL (explicitly, though Command might contain it for http?), Args, Env.
+
+	// However, `mcp.Manager` has `m.config.Servers` which is `[]ServerConfig`.
+	// Accessing this requires exposing it via Agent.
+	// I should probably have added ListMCPServers to Agent in the previous step.
+	// I missed that.
+	// I will implement this handler assuming `u.agent.ListMCPServers(ctx)` exists,
+	// and then I will go back and add it to Agent.
+
+	serverConfigs, err := u.agent.ListMCPServers(ctx)
+	if err != nil {
+		log.Error(err, "listing mcp servers")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(serverConfigs); err != nil {
+		log.Error(err, "encoding mcp servers")
+	}
+}
+
+func (u *HTMLUserInterface) handlePOSTAddMCPServer(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+	log := klog.FromContext(ctx)
+
+	if err := req.ParseForm(); err != nil {
+		log.Error(err, "parsing form")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	name := req.FormValue("name")
+	if name == "" {
+		http.Error(w, "missing name", http.StatusBadRequest)
+		return
+	}
+
+	command := req.FormValue("command")
+	url := req.FormValue("url")
+
+	if command == "" && url == "" {
+		http.Error(w, "either command or url is required", http.StatusBadRequest)
+		return
+	}
+
+	// Simple parsing of args and env (semicolon separated for simplicity or JSON?)
+	// Let's use JSON for args and env if possible, or simple splitting.
+	// For now, let's assume we pass them as JSON strings in the form field for complex structures,
+	// or just basic text fields.
+	// Let's try to decode JSON from body if strictly posting JSON, but here we use ParseForm.
+	// Let's stick to Form values.
+
+	argsJSON := req.FormValue("args")
+	var args []string
+	if argsJSON != "" {
+		if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
+			log.Error(err, "unmarshaling args")
+			// Try to treat as single string or comma separated?
+			// Let's fail if invalid JSON for now
+			// http.Error(w, "invalid args json", http.StatusBadRequest)
+			// fallback to empty
+		}
+	}
+
+	envJSON := req.FormValue("env")
+	env := make(map[string]string)
+	if envJSON != "" {
+		if err := json.Unmarshal([]byte(envJSON), &env); err != nil {
+			log.Error(err, "unmarshaling env")
+		}
+	}
+
+	config := mcp.ServerConfig{
+		Name:    name,
+		Command: command,
+		URL:     url,
+		Args:    args,
+		Env:     env,
+	}
+
+	if err := u.agent.AddMCPServer(ctx, config); err != nil {
+		log.Error(err, "adding mcp server")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Broadcast new state
+	if jsonData, err := u.getCurrentStateJSON(); err == nil {
+		u.broadcaster.Broadcast(jsonData)
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (u *HTMLUserInterface) handlePOSTRemoveMCPServer(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+	log := klog.FromContext(ctx)
+
+	if err := req.ParseForm(); err != nil {
+		log.Error(err, "parsing form")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	name := req.FormValue("name")
+	if name == "" {
+		http.Error(w, "missing name", http.StatusBadRequest)
+		return
+	}
+
+	if err := u.agent.RemoveMCPServer(ctx, name); err != nil {
+		log.Error(err, "removing mcp server")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Broadcast new state
+	if jsonData, err := u.getCurrentStateJSON(); err == nil {
 		u.broadcaster.Broadcast(jsonData)
 	}
 

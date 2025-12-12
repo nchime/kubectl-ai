@@ -348,6 +348,9 @@
             const [activeView, setActiveView] = useState('ai-assistant'); // Default view
             const [availableModels, setAvailableModels] = useState([]);
             const [currentModel, setCurrentModel] = useState('');
+            const [mcpServers, setMCPServers] = useState([]);
+            const [showAddMCPForm, setShowAddMCPForm] = useState(false);
+            const [newMCPServer, setNewMCPServer] = useState({ name: '', command: '', url: '', args: '', env: '' });
 
 
 
@@ -450,7 +453,20 @@
                     }
                 };
 
+                const fetchMCPServers = async () => {
+                    try {
+                        const response = await fetch('/mcp-servers');
+                        if (response.ok) {
+                            const data = await response.json();
+                            setMCPServers(data || []);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching MCP servers:', error);
+                    }
+                };
+
                 fetchModels();
+                fetchMCPServers();
             }, []);
 
             const handleModelChange = async (e) => {
@@ -466,6 +482,67 @@
                     }
                 } catch (error) {
                     console.error('Error setting model:', error);
+                }
+            };
+
+            const handleAddMCPServer = async (e) => {
+                e.preventDefault();
+                // Basic validation
+                if (!newMCPServer.name || (!newMCPServer.command && !newMCPServer.url)) {
+                    alert('Name and either Command or URL are required.');
+                    return;
+                }
+
+                const params = new URLSearchParams();
+                params.append('name', newMCPServer.name);
+                params.append('command', newMCPServer.command);
+                params.append('url', newMCPServer.url);
+                // Parse args if provided (comma separated for simplicity in UI, or handled as JSON string)
+                // Let's assume user inputs JSON array string for args, or we can split manually.
+                // For simplicity let's treat it as JSON string if it looks like one, else split by spaces?
+                // Actually the backend expects form value 'args' which handles JSON string.
+                params.append('args', newMCPServer.args);
+                params.append('env', newMCPServer.env); // Expecting JSON string for env map
+
+                try {
+                    const response = await fetch('/mcp-server/add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: params.toString()
+                    });
+                    if (response.ok) {
+                        setShowAddMCPForm(false);
+                        setNewMCPServer({ name: '', command: '', url: '', args: '', env: '' });
+                        fetchMCPServers(); // Refresh list
+                    } else {
+                        const text = await response.text();
+                        alert('Failed to add server: ' + text);
+                    }
+                } catch (error) {
+                    console.error('Error adding MCP server:', error);
+                    alert('Error adding MCP server: ' + error.message);
+                }
+            };
+
+            const handleRemoveMCPServer = async (name) => {
+                if (!confirm(`Are you sure you want to remove MCP server "${name}"?`)) {
+                    return;
+                }
+                try {
+                    const response = await fetch('/mcp-server/remove', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'name=' + encodeURIComponent(name)
+                    });
+                    if (response.ok) {
+                        fetchMCPServers(); // Refresh list
+                    } else {
+                        const text = await response.text();
+                        alert('Failed to remove server: ' + text);
+                    }
+                } catch (error) {
+                    console.error('Error removing MCP server:', error);
+                    alert('Error removing MCP server: ' + error.message);
                 }
             };
 
@@ -966,6 +1043,116 @@
                                                 ))}
                                             </select>
                                         </div>
+                                    </div>
+
+                                    {/* MCP Servers Settings */}
+                                    <div className={`p-6 rounded-xl border mt-6 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div>
+                                                <h3 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>MCP Servers</h3>
+                                                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Manage Model Context Protocol servers</p>
+                                            </div>
+                                            <button
+                                                onClick={() => setShowAddMCPForm(!showAddMCPForm)}
+                                                className="px-3 py-1.5 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors"
+                                            >
+                                                {showAddMCPForm ? 'Cancel' : 'Add Server'}
+                                            </button>
+                                        </div>
+
+                                        {/* Server List */}
+                                        <div className="space-y-3">
+                                            {mcpServers.length === 0 ? (
+                                                <p className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>No MCP servers configured.</p>
+                                            ) : (
+                                                mcpServers.map((server) => (
+                                                    <div key={server.Name} className={`flex justify-between items-center p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                                                        <div className="overflow-hidden">
+                                                            <p className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{server.Name}</p>
+                                                            <p className={`text-xs truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                                {server.Command ? `Command: ${server.Command}` : `URL: ${server.URL}`}
+                                                            </p>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleRemoveMCPServer(server.Name)}
+                                                            className="ml-2 px-3 py-1 text-xs text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+
+                                        {/* Add Server Form */}
+                                        {showAddMCPForm && (
+                                            <form onSubmit={handleAddMCPServer} className={`mt-4 p-4 rounded-lg border ${isDarkMode ? 'bg-gray-700/30 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                                                <h4 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>New Server Configuration</h4>
+                                                <div className="space-y-3">
+                                                    <div>
+                                                        <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Name *</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="e.g. filesystem"
+                                                            value={newMCPServer.name}
+                                                            onChange={e => setNewMCPServer({ ...newMCPServer, name: e.target.value })}
+                                                            className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Command</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="e.g. npx"
+                                                                value={newMCPServer.command}
+                                                                onChange={e => setNewMCPServer({ ...newMCPServer, command: e.target.value })}
+                                                                className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>URL</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="e.g. http://..."
+                                                                value={newMCPServer.url}
+                                                                onChange={e => setNewMCPServer({ ...newMCPServer, url: e.target.value })}
+                                                                className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Args (JSON array)</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder='e.g. ["-y", "@modelcontextprotocol/server-filesystem", "."]'
+                                                            value={newMCPServer.args}
+                                                            onChange={e => setNewMCPServer({ ...newMCPServer, args: e.target.value })}
+                                                            className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Env (JSON map)</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder='e.g. {"KEY": "VALUE"}'
+                                                            value={newMCPServer.env}
+                                                            onChange={e => setNewMCPServer({ ...newMCPServer, env: e.target.value })}
+                                                            className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                                                        />
+                                                    </div>
+                                                    <div className="flex justify-end pt-2">
+                                                        <button
+                                                            type="submit"
+                                                            className="px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 shadow-sm transition-colors"
+                                                        >
+                                                            Save Server
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        )}
                                     </div>
                                 </div>
                             ) : activeView === 'ai-assistant' ? (

@@ -121,7 +121,7 @@ dev: build ## Development mode - build and run
 
 dev-html: build ## Development mode - build and run with HTML UI
 	@echo "λ Starting $(BINARY_NAME) with HTML UI in dev mode..."
-	$(BINARY_PATH) --ui-type web
+	$(BINARY_PATH) --ui-type web --mcp-client
 
 # --- Maintenance Tasks ---
 clean: ## Clean build artifacts and coverage files
