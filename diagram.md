@@ -91,9 +91,7 @@ flowchart LR
     K8sMCPServer --> TargetK8s2
 
     subgraph TargetInfra["대상 인프라 <Target Infrastructure>"]
-
-```
-    
         TargetK8s1[대상 K8s 클러스터 1 <Prod>]
         TargetK8s2[대상 K8s 클러스터 2 <Dev>]
     end
+```
